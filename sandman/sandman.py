@@ -260,6 +260,29 @@ def retrieve_collection(collection, query_arguments=None):
             elif key == 'limit':
                 limit = value
             elif key:
+                #print "KEY", key, "VAL", value,
+
+                if value[:2] in ['>=', '<=']:
+                    op   = value[:2]
+                    val1 = value[2:]
+                    #print "KEY", key, "VAL", value, 'VAL1', val1, 'OP', op
+                    if   op == '<=':
+                        filters.append(getattr(cls, key) <= val1)
+                    elif op == '>=':
+                        filters.append(getattr(cls, key) >= val1)
+
+                elif value[0] in ['>', '<']:
+                    op   = value[0]
+                    val1 = value[1:]
+                    #print "KEY", key, "VAL", value, 'VAL1', val1, 'OP', op
+                    if   op == '<':
+                        filters.append(getattr(cls, key) < val1)
+                    elif op == '>':
+                        filters.append(getattr(cls, key) > val1)
+
+                else:
+                    filters.append(getattr(cls, key) == value)
+
                 filters.append(getattr(cls, key) == value)
         resources = session.query(cls).filter(*filters).order_by(
             *order).limit(limit)
